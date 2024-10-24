@@ -12,16 +12,16 @@ metadata = MetaData()
 # Определяем таблицу с вопросами
 questions_table = Table('quiz_questions', metadata, autoload_with=engine)
 
-# Создаем таблицу для хранения результатов, если она еще не создана
+# Определяем таблицу для хранения результатов, если она еще не создана
 results_table = Table(
     'quiz_results', metadata,
     Column('id', Integer, primary_key=True),
-    Column('name', String),
-    Column('surname', String),
-    Column('question_id', Integer),
-    Column('user_answer', String),
-    Column('is_correct', Boolean),
-    Column('score', Integer)
+    Column('user_name', String, nullable=False),
+    Column('user_surname', String, nullable=False),
+    Column('question_id', Integer, nullable=False),
+    Column('user_answer', String, nullable=False),
+    Column('is_correct', Boolean, nullable=False),
+    Column('score', Integer, nullable=False)
 )
 metadata.create_all(engine)
 
@@ -55,8 +55,8 @@ def quiz():
 
             # Сохраняем результаты в базу данных
             result = results_table.insert().values(
-                name=name,
-                surname=surname,
+                user_name=name,
+                user_surname=surname,
                 question_id=question.id,
                 user_answer=user_answer,
                 is_correct=is_correct,

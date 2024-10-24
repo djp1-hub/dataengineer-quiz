@@ -7,6 +7,18 @@ CREATE TABLE quiz_questions (
     rating TEXT NOT NULL
 );
 
+-- Создание таблицы для хранения результатов пользователей
+CREATE TABLE quiz_results (
+    id SERIAL PRIMARY KEY,
+    user_name TEXT NOT NULL,
+    user_surname TEXT NOT NULL,
+    question_id INTEGER NOT NULL REFERENCES quiz_questions(id),
+    user_answer TEXT NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    score INTEGER NOT NULL
+);
+
+
 -- Вставка данных в таблицу
 INSERT INTO quiz_questions (question, answer_options, correct_answer, rating)
 VALUES
