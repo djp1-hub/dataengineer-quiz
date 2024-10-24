@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean
 from sqlalchemy.orm import sessionmaker
@@ -28,6 +29,33 @@ metadata.create_all(engine)
 # Создаем сессию для взаимодействия с базой данных
 Session = sessionmaker(bind=engine)
 session = Session()
+
+import csv
+import os
+
+def save_result_to_file(name, surname, question, answer, is_correct, score):
+    # Формируем имя файла по имени и фамилии пользователя
+    file_name = f"{name}_{surname}_results.csv"
+    file_path = os.path.join('/app', file_name)
+
+    # Проверяем, существует ли файл, чтобы добавить заголовок только в новый файл
+    file_exists = os.path.isfile(file_path)
+
+    with open(file_path, 'a', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['Name', 'Surname', 'Question', 'User Answer', 'Correct', 'Score']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            'Name': name,
+            'Surname': surname,
+            'Question': question,
+            'User Answer': answer,
+            'Correct': 'Yes' if is_correct else 'No',
+            'Score': score
+        })
 
 
 @app.route("/results", methods=["GET"])
@@ -74,7 +102,7 @@ def quiz():
             score = int(question.rating.split()[0]) if is_correct else 0
             total_score += score
 
-            # Сохраняем результаты в базу данных
+            # Сохраняем результаты в базу данных и файл
             result = results_table.insert().values(
                 user_name=name,
                 user_surname=surname,
@@ -84,6 +112,8 @@ def quiz():
                 score=score
             )
             engine.execute(result)
+
+            save_result_to_file(name, surname, question.question, user_answer, is_correct, score)
 
         return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
 
