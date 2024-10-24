@@ -9,10 +9,10 @@
     <form method="POST">
         {% for question in questions %}
             <h3>{{ question.question }}</h3>
-            {% for answer in answers[question.id] %}
+            {% for option in question.answer_options.split(',') %}
                 <label>
-                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" required>
-                    {{ answer.answer_text }}
+                    <input type="radio" name="question_{{ question.id }}" value="{{ option }}" required>
+                    {{ option }}
                 </label><br>
             {% endfor %}
         {% endfor %}
