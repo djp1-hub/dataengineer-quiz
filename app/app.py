@@ -30,6 +30,27 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
+@app.route("/results", methods=["GET"])
+def results():
+    # Извлекаем результаты из базы данных
+    results_data = session.query(results_table).all()
+
+    # Подготовка данных для передачи в шаблон
+    detailed_results = []
+    for result in results_data:
+        question = session.query(questions_table).filter_by(id=result.question_id).first()
+        detailed_results.append({
+            "name": result.user_name,
+            "surname": result.user_surname,
+            "question": question.question,
+            "user_answer": result.user_answer,
+            "is_correct": result.is_correct,
+            "score": result.score
+        })
+
+    return render_template("results.html", detailed_results=detailed_results)
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
