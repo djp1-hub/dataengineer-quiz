@@ -69,8 +69,9 @@ def quiz():
     if request.method == "POST":
         total_score = 0
         for question in session.query(questions_table).all():
-            user_answer = request.form.get(f"question_{question.id}")
-            is_correct = user_answer == question.correct_answer
+            selected_answer_id = int(request.form.get(f"question_{question.id}"))
+            selected_answer = session.query(answers_table).filter_by(id=selected_answer_id).first()
+            is_correct = selected_answer.is_correct
             score = int(question.rating.split()[0]) if is_correct else 0
             total_score += score
 
@@ -79,7 +80,7 @@ def quiz():
                 user_name=name,
                 user_surname=surname,
                 question_id=question.id,
-                user_answer=user_answer,
+                user_answer=selected_answer.answer_text,
                 is_correct=is_correct,
                 score=score
             )
@@ -87,8 +88,11 @@ def quiz():
 
         return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
 
+    # Получаем все вопросы и их ответы из базы данных
     questions = session.query(questions_table).all()
-    return render_template("quiz.html", questions=questions, name=name, surname=surname)
+    answers = {q.id: session.query(answers_table).filter_by(question_id=q.id).all() for q in questions}
+
+    return render_template("quiz.html", questions=questions, answers=answers, name=name, surname=surname)
 
 
 if __name__ == "__main__":
