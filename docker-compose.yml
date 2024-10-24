@@ -31,8 +31,6 @@ services:
       DATABASE_URL: postgres://quiz_user:quiz_password@db:5432/quiz_db
     ports:
       - "5000:5000"
-    volumes:
-      - ./app/results:/app  # Проброс директории на хост
     depends_on:
       db:
         condition: service_healthy
