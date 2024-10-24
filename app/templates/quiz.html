@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Онлайн Квиз</title>
+</head>
+<body>
+    <h1>Квиз для {{ name }} {{ surname }}</h1>
+    <form method="POST">
+        {% for question in questions %}
+            <h3>{{ question.question }}</h3>
+            {% for option in question.answer_options.split(',') %}
+                <label>
+                    <input type="radio" name="question_{{ question.id }}" value="{{ option }}" required>
+                    {{ option }}
+                </label><br>
+            {% endfor %}
+        {% endfor %}
+        <button type="submit">Завершить квиз</button>
+    </form>
+</body>
+</html>
