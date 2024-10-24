@@ -3,17 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Онлайн Квиз</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+            color: #555;
+            font-weight: 700;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Добро пожаловать в квиз</h1>
-    <form method="POST">
-        <label for="name">Имя:</label>
-        <input type="text" id="name" name="name" required>
-        <br>
-        <label for="surname">Фамилия:</label>
-        <input type="text" id="surname" name="surname" required>
-        <br>
-        <button type="submit">Начать квиз</button>
-    </form>
+    <div class="container">
+        <h1>Добро пожаловать в квиз</h1>
+        <form method="POST">
+            <label for="name">Имя:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="surname">Фамилия:</label>
+            <input type="text" id="surname" name="surname" required>
+            <button type="submit">Начать квиз</button>
+        </form>
+    </div>
 </body>
 </html>
