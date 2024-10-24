@@ -3,7 +3,7 @@ name: Build and Deploy to Self-Hosted
 on:
   push:
     branches:
-      - main  # Основная ветка для деплоя
+      - master  # Основная ветка для деплоя
 
 jobs:
   deploy:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: stop Docker Containers
       run: docker-compose down -v
