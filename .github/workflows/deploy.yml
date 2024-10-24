@@ -10,11 +10,11 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
     - name: stop Docker Containers
       run: docker-compose down -v
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
     - name: Build Docker Containers
       run: docker-compose  build --no-cache
