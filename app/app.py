@@ -88,7 +88,16 @@ def quiz():
 
         return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
 
-    questions = session.query(questions_table).order_by(func.random()).all()
+    #questions = session.query(questions_table).order_by(func.random()).all()
+        # Получаем все доступные темы
+    topics = session.query(questions_table.c.topic).distinct().all()
+
+    questions = []
+    for topic in topics:
+        # Для каждой темы выбираем 2 случайных вопроса
+        topic_questions = session.query(questions_table).filter_by(topic=topic[0]).order_by(func.random()).limit(
+            2).all()
+        questions.extend(topic_questions)
     return render_template("quiz.html", questions=questions, name=name, surname=surname)
 
 
