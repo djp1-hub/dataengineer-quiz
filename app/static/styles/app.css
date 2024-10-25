@@ -21,6 +21,13 @@ body {
 h1 {
     margin-bottom: 20px;
     color: #333;
+    font-size: 2rem;
+}
+h3 {
+    font-size: 1.7rem;
+    margin: 20px 0 10px;
+    color: #007bff;
+    text-align: left;
 }
 
 label {
@@ -69,10 +76,11 @@ button:hover {
 
     h1 {
         margin-bottom: 20px;
-        font-size: 24px;
+        font-size: 2rem;
     }
 
     h3 {
+        font-size: 1.7rem;
         margin: 20px 0 10px;
         color: #007bff;
         text-align: left;
