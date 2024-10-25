@@ -55,3 +55,35 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+.quiz {
+    body {
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .container {
+        padding: 30px 50px;
+        max-width: 800px;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    h3 {
+        margin: 20px 0 10px;
+        color: #007bff;
+        text-align: left;
+    }
+
+    label {
+        margin: 8px 0;
+        font-weight: 400;
+    }
+
+    input[type="radio"] {
+        margin-right: 10px;
+    }
+}
