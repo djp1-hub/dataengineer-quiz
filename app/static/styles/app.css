@@ -29,6 +29,11 @@ h3 {
     color: #007bff;
     text-align: left;
 }
+h4 {
+    font-size: 1.5rem;
+    margin: 20px 0 10px;
+    color: #007bff;
+}
 
 label {
     display: block;
@@ -57,6 +62,10 @@ button {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
+}
+
+.text-center {
+    text-align: center;
 }
 
 button:hover {
