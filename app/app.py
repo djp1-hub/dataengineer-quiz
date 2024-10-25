@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func, distinct, select
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql import insert
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func, distinct
+
+from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy.sql import select
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ results_table = Table(
     Column('is_correct', Boolean, nullable=False),
     Column('score', Integer, nullable=False)
 )
-metadata.create_all(engine, checkfirst=True)
+metadata.create_all(engine)
 
 # Создаем сессию для взаимодействия с базой данных
 Session = sessionmaker(bind=engine)
@@ -34,14 +35,12 @@ session = Session()
 @app.route("/results", methods=["GET"])
 def results():
     # Извлекаем результаты из базы данных
-    results_data = session.execute(select(results_table)).all()
+    results_data = session.query(results_table).all()
 
     # Подготовка данных для передачи в шаблон
     detailed_results = []
     for result in results_data:
-        question = session.execute(
-            select(questions_table).where(questions_table.c.id == result.question_id)
-        ).first()
+        question = session.query(questions_table).filter_by(id=result.question_id).first()
         detailed_results.append({
             "name": result.user_name,
             "surname": result.user_surname,
@@ -72,7 +71,7 @@ def quiz():
     if request.method == "POST":
         total_score = 0
         incorrect_score = 0
-        for question in session.execute(select(questions_table)).all():
+        for question in session.query(questions_table).all():
             user_answer = request.form.get(f"question_{question.id}")
             is_correct = user_answer == question.correct_answer
             cor_score = int(question.rating.split()[0]) if is_correct else 0
@@ -82,7 +81,7 @@ def quiz():
             incorrect_score += not_cor_score
 
             # Сохраняем результаты в базу данных
-            new_result = insert(results_table).values(
+            result = results_table.insert().values(
                 user_name=name,
                 user_surname=surname,
                 question_id=question.id,
@@ -90,26 +89,24 @@ def quiz():
                 is_correct=is_correct,
                 score=cor_score
             )
-            session.execute(new_result)
+            engine.execute(result)
 
-        session.commit()
         return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов из {total_score + incorrect_score}."
 
-    # Получаем два случайных вопроса для каждой уникальной темы
     subquery = (
-        select(
-            questions_table.c.id,
-            questions_table.c.topic,
-            questions_table.c.question,
-            func.row_number().over(partition_by=questions_table.c.topic, order_by=func.random()).label('row_number')
+        session.query(
+            questions_table.id,
+            questions_table.topic,
+            questions_table.question,
+            func.row_number().over(partition_by=questions_table.topic, order_by=func.random()).label('row_number')
         ).subquery()
     )
 
     # Основной запрос, выбирающий только два случайных вопроса для каждого уникального topic
-    questions = session.execute(
-        select(subquery).where(subquery.c.row_number <= 2)
-    ).all()
+    questions = session.query(subquery).filter(subquery.c.row_number <= 2).all()
 
+
+    #questions = session.query(questions_table).order_by(func.random()).all()
     return render_template("quiz.html", questions=questions, name=name, surname=surname)
 
 
