@@ -120,7 +120,7 @@ def finish_quiz():
             )
             engine.execute(result)
 
-        return render_template("quiz_results.html",name=name, surname=surname, total_score=total_score)
+        return render_template("quiz_result.html", name=name, surname=surname, total_score=total_score)
 
     #questions = session.query(questions_table).order_by(func.random()).all()
     #return render_template("quiz.html", questions=questions, name=name, surname=surname)
