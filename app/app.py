@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func
+
 from sqlalchemy.orm import sessionmaker
 
 app = Flask(__name__)
@@ -87,7 +88,7 @@ def quiz():
 
         return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
 
-    questions = session.query(questions_table).all()
+    questions = session.query(questions_table).order_by(func.random()).all()
     return render_template("quiz.html", questions=questions, name=name, surname=surname)
 
 
