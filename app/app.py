@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func, distinct
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy.sql import select
 
 app = Flask(__name__)
 
@@ -69,11 +70,15 @@ def quiz():
 
     if request.method == "POST":
         total_score = 0
+        incorrect_score = 0
         for question in session.query(questions_table).all():
             user_answer = request.form.get(f"question_{question.id}")
             is_correct = user_answer == question.correct_answer
-            score = int(question.rating.split()[0]) if is_correct else 0
-            total_score += score
+            cor_score = int(question.rating.split()[0]) if is_correct else 0
+            not_cor_score = int(question.rating.split()[0]) if not is_correct else 0
+
+            total_score += cor_score
+            incorrect_score += not_cor_score
 
             # Сохраняем результаты в базу данных
             result = results_table.insert().values(
@@ -82,13 +87,26 @@ def quiz():
                 question_id=question.id,
                 user_answer=user_answer,
                 is_correct=is_correct,
-                score=score
+                score=cor_score
             )
             engine.execute(result)
 
-        return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
+        return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов из {total_score + incorrect_score}."
 
-    questions = session.query(questions_table).order_by(func.random()).all()
+    subquery = (
+        session.query(
+            questions_table.id,
+            questions_table.topic,
+            questions_table.question,
+            func.row_number().over(partition_by=questions_table.topic, order_by=func.random()).label('row_number')
+        ).subquery()
+    )
+
+    # Основной запрос, выбирающий только два случайных вопроса для каждого уникального topic
+    questions = session.query(subquery).filter(subquery.c.row_number <= 2).all()
+
+
+    #questions = session.query(questions_table).order_by(func.random()).all()
     return render_template("quiz.html", questions=questions, name=name, surname=surname)
 
 
