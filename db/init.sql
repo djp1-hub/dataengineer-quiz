@@ -118,6 +118,19 @@ COPY public.quiz_questions (id, question, answer_options, correct_answer, rating
 10	Какой компонент Kafka отвечает за хранение записей в топиках?	1. Producer,2. Consumer,3. Broker,4. Zookeeper	3. Broker	2	13
 \.
 
+COPY public.quiz_questions (id, question, answer_options, correct_answer, rating, topic) FROM stdin;
+29	Какая команда используется для создания простого представления в SQL Server?	1. CREATE VIEW,2. CREATE INDEXED VIEW,3. CREATE SIMPLE VIEW,4. CREATE MATERIALIZED VIEW	1. CREATE VIEW	2	3
+30	Какой сервис используется для хранения секретов в Azure?	1. Azure Key Vault,2. Azure Security Center,3. Azure Secrets Storage,4. Azure Secrets Manager	1. Azure Key Vault	3	1
+31	Как в PostgreSQL организовать автоматическое создание индексов?	1. Использовать конструкцию INDEX BY,2. Использовать функциональные индексы,3. Настроить автоматическое индексирование,4. Использовать триггеры для создания индексов	2. Использовать функциональные индексы	2	7
+32	Как можно восстановить удаленный коммит в Git?	1. Использовать команду git recover,2. Использовать команду git reflog,3. Использовать команду git restore,4. Использовать команду git revert	2. Использовать команду git reflog	3	2
+33	Какие компоненты включены в кластер ClickHouse?	1. ClickHouse и ClickHouse Keeper,2. ClickHouse и ZooKeeper,3. ClickHouse и PostgreSQL,4. ClickHouse и Redis	2. ClickHouse и ZooKeeper	2	8
+34	Какая команда используется для создания новой репликации в ClickHouse?	1. CREATE REPLICATED,2. CREATE TABLE … ENGINE = ReplicatedMergeTree,3. CREATE TABLE … WITH REPLICATION,4. CREATE REPLICA TABLE	2. CREATE TABLE … ENGINE = ReplicatedMergeTree	3	8
+35	Какой тип задач можно использовать в Apache NiFi для автоматизации обработки файлов?	1. ListFile,2. WatchFile,3. FileProcessor,4. FileTask	1. ListFile	2	4
+36	Как в Airflow организовать мониторинг выполнения DAG?	1. Использовать мониторинг задач,2. Настроить мониторинг в настройках DAG,3. Использовать Airflow UI,4. Настроить журналирование DAG	3. Использовать Airflow UI	2	11
+38	Какая команда в Pandas используется для объединения нескольких DataFrame по строкам?	1. merge,2. join,3. concatenate,4. stack	3. concatenate	2	12
+\.
+
+
 
 
 COPY public.quiz_results (id, user_name, user_surname, question_id, user_answer, is_correct, score) FROM stdin;
