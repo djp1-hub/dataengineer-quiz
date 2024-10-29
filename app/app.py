@@ -46,7 +46,8 @@ def results():
             "question": question.question,
             "user_answer": result.user_answer,
             "is_correct": result.is_correct,
-            "score": result.score
+            "score": result.score,
+            "answer_date": result.answer_date
         })
 
     return render_template("results.html", detailed_results=detailed_results)
