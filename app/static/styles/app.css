@@ -112,7 +112,6 @@ button:hover {
         max-width: 800px;
         display: flex;
         flex-direction: column;
-        height: 100vh;        
     }    
     table {
         border-collapse: collapse;
