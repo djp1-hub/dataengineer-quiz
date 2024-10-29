@@ -3,9 +3,8 @@ body {
     background: #f0f2f5;
     display: flex;
     justify-content: center;
-    align-items: center;
     height: 100vh;
-    margin: 0;
+    margin: 10px;
 }
 
 .container {
@@ -72,6 +71,9 @@ button:hover {
     background-color: #0056b3;
 }
 
+.login body {
+    align-items: center;
+}
 .quiz {
     body {
         align-items: flex-start;
