@@ -30,13 +30,14 @@ ALTER SEQUENCE public.quiz_questions_id_seq OWNED BY public.quiz_questions.id;
 --
 
 CREATE TABLE public.quiz_results (
-    id integer NOT NULL,
-    user_name text NOT NULL,
-    user_surname text NOT NULL,
-    question_id integer NOT NULL,
-    user_answer text NOT NULL,
-    is_correct boolean NOT NULL,
-    score integer NOT NULL
+	id serial4 NOT NULL,
+	user_name text NOT NULL,
+	user_surname text NOT NULL,
+	question_id int4 NOT NULL,
+	user_answer text NOT NULL,
+	is_correct bool NOT NULL,
+	score int4 NOT NULL,
+	answer_date timestamp DEFAULT now() NULL
 );
 
 
