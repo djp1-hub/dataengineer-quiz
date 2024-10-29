@@ -54,20 +54,54 @@ def results():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    if request.method == "POST":
-        name = request.form.get("name")
-        surname = request.form.get("surname")
-        return redirect(url_for('quiz', name=name, surname=surname))
-
+    # if request.method == "POST":
+    #     name = request.form.get("name")
+    #     surname = request.form.get("surname")
+    #     return redirect(url_for('quiz', name=name, surname=surname))
     return render_template("index.html")
 
 
 @app.route("/quiz", methods=["GET", "POST"])
 def quiz():
-    name = request.args.get("name")
-    surname = request.args.get("surname")
+    #name = request.args.get("name")
+    #surname = request.args.get("surname")
 
     if request.method == "POST":
+        name = request.form.get("name")
+        surname = request.form.get("surname")
+
+        # total_score = 0
+        # for question in session.query(questions_table).all():
+        #     user_answer = request.form.get(f"question_{question.id}")
+        #     is_correct = user_answer == question.correct_answer
+        #     score = int(question.rating.split()[0]) if is_correct else 0
+        #     total_score += score
+        #
+        #     # Сохраняем результаты в базу данных
+        #     result = results_table.insert().values(
+        #         user_name=name,
+        #         user_surname=surname,
+        #         question_id=question.id,
+        #         user_answer=user_answer,
+        #         is_correct=is_correct,
+        #         score=score
+        #     )
+        #     engine.execute(result)
+        #
+        # return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
+
+        questions = session.query(questions_table).order_by(func.random()).all()
+        return render_template("quiz.html", questions=questions, name=name, surname=surname)
+
+    return redirect('/')
+
+@app.route("/finish_quiz", methods=["GET", "POST"])
+def finish_quiz():
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        surname = request.form.get("surname")
+
         total_score = 0
         for question in session.query(questions_table).all():
             user_answer = request.form.get(f"question_{question.id}")
@@ -86,10 +120,11 @@ def quiz():
             )
             engine.execute(result)
 
-        return f"Спасибо, {name} {surname}. Ваш результат: {total_score} баллов"
+        return render_template("quiz_result.html", name=name, surname=surname, total_score=total_score)
 
-    questions = session.query(questions_table).order_by(func.random()).all()
-    return render_template("quiz.html", questions=questions, name=name, surname=surname)
+    #questions = session.query(questions_table).order_by(func.random()).all()
+    #return render_template("quiz.html", questions=questions, name=name, surname=surname)
+    return redirect('/')
 
 
 if __name__ == "__main__":
