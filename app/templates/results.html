@@ -29,7 +29,7 @@
                         <td>{{ result.user_answer }}</td>
                         <td>{{ "Верно" if result.is_correct else "Неверно" }}</td>
                         <td>{{ result.score }}</td>
-                        <td></td>
+                        <td>{{ result.answer_date }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
