@@ -1,45 +1,65 @@
-version: '3.8'
+name: Build and Deploy to Self-Hosted
 
-services:
-  db:
-    image: postgres:14
-    container_name: quiz_postgres
-    environment:
-      POSTGRES_DB: quiz_db
-      POSTGRES_USER: quiz_user
-      POSTGRES_PASSWORD: quiz_password
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "64322:5432"  # Проброс внешнего порта на внутренний порт PostgreSQL
-    networks:
-      - quiz_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+on:
+  push:
+    branches:
+      - master  # Основная ветка для деплоя
 
-  web:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    container_name: quiz_flask
-    environment:
-      FLASK_ENV: development
-      DATABASE_URL: postgres://quiz_user:quiz_password@db:5432/quiz_db
-    ports:
-      - "5000:5000"
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - quiz_network
+jobs:
+  deploy:
+    runs-on: self-hosted
 
-volumes:
-  db_data:
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-networks:
-  quiz_network:
-    driver: bridge
+    - name: Verify Docker is Running
+      run: |
+        if ! docker info > /dev/null 2>&1; then
+          echo "Warning: Docker is not running. Skipping backup steps."
+          exit 0
+        fi
+
+    - name: Prepare Backup Directory
+      run: |
+        mkdir -p ./db_backup
+        rm -f ./db_backup/quiz_results.backup
+
+    - name: Check PostgreSQL Health and Export Quiz Results
+      env:
+        PGPASSWORD: quiz_password
+      run: |
+        if docker inspect -f '{{.State.Status}}' quiz_postgres > /dev/null 2>&1 && \
+           [ "$(docker inspect -f '{{.State.Health.Status}}' quiz_postgres)" = "healthy" ]; then
+          echo "PostgreSQL is running and healthy. Proceeding with backup."
+          docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
+          docker cp quiz_postgres:/var/lib/postgresql/data/quiz_results.backup ./db_backup/quiz_results.backup
+        else
+          echo "Warning: PostgreSQL container is not running or not healthy. Skipping backup."
+        fi
+
+    - name: stop Docker Containers
+      run: docker-compose down -v
+
+    - name: Build Docker Containers
+      run: docker-compose build --no-cache
+
+    - name: Start Docker Containers
+      run: docker-compose up -d
+
+    - name: Wait for PostgreSQL Health Check
+      run: |
+        until docker inspect -f '{{.State.Status}}' quiz_postgres > /dev/null 2>&1 && \
+              [ "$(docker inspect -f '{{.State.Health.Status}}' quiz_postgres)" = "healthy" ]; do
+          echo "Waiting for PostgreSQL to be healthy..."
+          sleep 5
+        done
+
+    - name: Restore Quiz Results to PostgreSQL
+      if: ${{ steps.CheckPostgreSQLHealthAndExportQuizResults.outputs.backup_created == 'true' }}
+      env:
+        PGPASSWORD: quiz_password
+      run: |
+        echo "Restoring backup..."
+        docker cp ./db_backup/quiz_results.backup quiz_postgres:/var/lib/postgresql/data/quiz_results.backup
+        docker-compose exec -T db pg_restore --data-only -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
