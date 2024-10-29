@@ -17,7 +17,9 @@ jobs:
       env:
         PGPASSWORD: quiz_password
       run: |
+        mkdir -p ./db_backup
         docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
+        docker cp quiz_postgres:/var/lib/postgresql/data/quiz_results.backup ./db_backup/quiz_results.backup
 
     - name: stop Docker Containers
       run: docker-compose down -v
@@ -33,4 +35,5 @@ jobs:
         PGPASSWORD: quiz_password
       run: |
         sleep 15  # Даем время на полное поднятие контейнеров
+        docker cp ./db_backup/quiz_results.backup quiz_postgres:/var/lib/postgresql/data/quiz_results.backup
         docker-compose exec -T db pg_restore -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
