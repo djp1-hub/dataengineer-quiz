@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, DateTime, func
 
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -23,7 +23,8 @@ results_table = Table(
     Column('question_id', Integer, nullable=False),
     Column('user_answer', String, nullable=False),
     Column('is_correct', Boolean, nullable=False),
-    Column('score', Integer, nullable=False)
+    Column('score', Integer, nullable=False),
+    Column('answer_date', DateTime, nullable=False)
 )
 metadata.create_all(engine)
 
