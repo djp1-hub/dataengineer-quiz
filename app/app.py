@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, func
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, Boolean, DateTime, func
 
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -22,7 +23,8 @@ results_table = Table(
     Column('question_id', Integer, nullable=False),
     Column('user_answer', String, nullable=False),
     Column('is_correct', Boolean, nullable=False),
-    Column('score', Integer, nullable=False)
+    Column('score', Integer, nullable=False),
+    Column('answer_date', DateTime, nullable=False)
 )
 metadata.create_all(engine)
 
@@ -46,7 +48,8 @@ def results():
             "question": question.question,
             "user_answer": result.user_answer,
             "is_correct": result.is_correct,
-            "score": result.score
+            "score": result.score,
+            "answer_date": result.answer_date.strftime('%H:%M:%S %d.%m.%Y')
         })
 
     return render_template("results.html", detailed_results=detailed_results)

@@ -3,7 +3,6 @@ body {
     background: #f0f2f5;
     display: flex;
     justify-content: center;
-    height: 100vh;
     margin: 10px;
 }
 
@@ -73,6 +72,7 @@ button:hover {
 
 .login body {
     align-items: center;
+    height: 100vh;
 }
 .quiz {
     body {
@@ -112,7 +112,6 @@ button:hover {
         max-width: 800px;
         display: flex;
         flex-direction: column;
-        height: 100vh;        
     }    
     table {
         border-collapse: collapse;
