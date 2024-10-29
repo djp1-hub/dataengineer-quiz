@@ -13,30 +13,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Verify Docker is Running
-      run: |
-        if ! docker info > /dev/null 2>&1; then
-          echo "Warning: Docker is not running. Skipping backup steps."
-          exit 0
-        fi
-
-    - name: Prepare Backup Directory
-      run: |
-        mkdir -p ./db_backup
-        rm -f ./db_backup/quiz_results.backup
-
-    - name: Check PostgreSQL Health and Export Quiz Results
+    - name: Export Quiz Results from PostgreSQL
       env:
         PGPASSWORD: quiz_password
       run: |
-        if docker inspect -f '{{.State.Status}}' quiz_postgres > /dev/null 2>&1 && \
-           [ "$(docker inspect -f '{{.State.Health.Status}}' quiz_postgres)" = "healthy" ]; then
-          echo "PostgreSQL is running and healthy. Proceeding with backup."
-          docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
-          docker cp quiz_postgres:/var/lib/postgresql/data/quiz_results.backup ./db_backup/quiz_results.backup
-        else
-          echo "Warning: PostgreSQL container is not running or not healthy. Skipping backup."
-        fi
+        mkdir -p ./db_backup
+        docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
+        docker cp quiz_postgres:/var/lib/postgresql/data/quiz_results.backup ./db_backup/quiz_results.backup
 
     - name: stop Docker Containers
       run: docker-compose down -v
@@ -47,19 +30,11 @@ jobs:
     - name: Start Docker Containers
       run: docker-compose up -d
 
-    - name: Wait for PostgreSQL Health Check
-      run: |
-        until docker inspect -f '{{.State.Status}}' quiz_postgres > /dev/null 2>&1 && \
-              [ "$(docker inspect -f '{{.State.Health.Status}}' quiz_postgres)" = "healthy" ]; do
-          echo "Waiting for PostgreSQL to be healthy..."
-          sleep 5
-        done
-
     - name: Restore Quiz Results to PostgreSQL
-      if: ${{ steps.CheckPostgreSQLHealthAndExportQuizResults.outputs.backup_created == 'true' }}
       env:
         PGPASSWORD: quiz_password
       run: |
-        echo "Restoring backup..."
+        sleep 15  # Даем время на полное поднятие контейнеров
         docker cp ./db_backup/quiz_results.backup quiz_postgres:/var/lib/postgresql/data/quiz_results.backup
         docker-compose exec -T db pg_restore --data-only -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
+
