@@ -72,6 +72,7 @@ button:hover {
 
 .login body {
     align-items: center;
+    height: 100vh;
 }
 .quiz {
     body {
