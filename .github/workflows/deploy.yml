@@ -36,4 +36,5 @@ jobs:
       run: |
         sleep 15  # Даем время на полное поднятие контейнеров
         docker cp ./db_backup/quiz_results.backup quiz_postgres:/var/lib/postgresql/data/quiz_results.backup
-        docker-compose exec -T db pg_restore -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
+        docker-compose exec -T db pg_restore --data-only -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
+
