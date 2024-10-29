@@ -22,7 +22,8 @@ results_table = Table(
     Column('question_id', Integer, nullable=False),
     Column('user_answer', String, nullable=False),
     Column('is_correct', Boolean, nullable=False),
-    Column('score', Integer, nullable=False)
+    Column('score', Integer, nullable=False),
+    Column('answer_date', Timestamp, nullable=False)
 )
 metadata.create_all(engine)
 
