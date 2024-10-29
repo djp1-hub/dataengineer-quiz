@@ -22,8 +22,7 @@ results_table = Table(
     Column('question_id', Integer, nullable=False),
     Column('user_answer', String, nullable=False),
     Column('is_correct', Boolean, nullable=False),
-    Column('score', Integer, nullable=False),
-    Column('answer_date', Timestamp, nullable=False)
+    Column('score', Integer, nullable=False)
 )
 metadata.create_all(engine)
 
@@ -47,8 +46,7 @@ def results():
             "question": question.question,
             "user_answer": result.user_answer,
             "is_correct": result.is_correct,
-            "score": result.score,
-            "answer_date": result.answer_date
+            "score": result.score
         })
 
     return render_template("results.html", detailed_results=detailed_results)
