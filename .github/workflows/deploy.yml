@@ -10,14 +10,27 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: stop Docker Containers
-      run: docker-compose down -v
-
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Export Quiz Results from PostgreSQL
+      env:
+        PGPASSWORD: quiz_password
+      run: |
+        docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
+
+    - name: stop Docker Containers
+      run: docker-compose down -v
+
     - name: Build Docker Containers
-      run: docker-compose  build --no-cache
+      run: docker-compose build --no-cache
 
     - name: Start Docker Containers
       run: docker-compose up -d
+
+    - name: Restore Quiz Results to PostgreSQL
+      env:
+        PGPASSWORD: quiz_password
+      run: |
+        sleep 15  # Даем время на полное поднятие контейнеров
+        docker-compose exec -T db pg_restore -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
