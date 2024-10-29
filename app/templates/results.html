@@ -17,6 +17,7 @@
                     <th>Ответ пользователя</th>
                     <th>Правильность</th>
                     <th>Баллы</th>
+                    <th>дата</th>                    
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,7 @@
                         <td>{{ result.user_answer }}</td>
                         <td>{{ "Верно" if result.is_correct else "Неверно" }}</td>
                         <td>{{ result.score }}</td>
+                        <td>{{ result.answer_date }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
