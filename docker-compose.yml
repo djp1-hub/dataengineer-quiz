@@ -3,7 +3,7 @@ name: Build and Deploy to Self-Hosted
 on:
   push:
     branches:
-      - master  # Основная ветка для деплоя
+      - master
 
 jobs:
   deploy:
