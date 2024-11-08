@@ -13,22 +13,52 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Setup or Update Deployment Service
+      run: |
+        SERVICE_NAME="dataengineer.service"
+        SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
+        COMPOSE_FILE_PATH="/home/gennady/dataengineer-quiz/_work/dataengineer-quiz/dataengineer-quiz/docker-compose.yml"
+        
+        # Создание или обновление службы, если она уже существует
+        sudo bash -c "cat > $SERVICE_PATH" <<- EOM
+        [Unit]
+        Description=Data Engineer Deployment Service
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        WorkingDirectory=$(dirname $COMPOSE_FILE_PATH)
+        ExecStart=/usr/local/bin/docker-compose -f $COMPOSE_FILE_PATH up -d
+        ExecStop=/usr/local/bin/docker-compose -f $COMPOSE_FILE_PATH down -v
+        Restart=always
+        TimeoutStopSec=10
+        RestartSec=5
+
+        [Install]
+        WantedBy=multi-user.target
+        EOM
+
+        # Перезагрузка службы для применения изменений
+        sudo systemctl daemon-reload
+        sudo systemctl enable "$SERVICE_NAME"
+        sudo systemctl restart "$SERVICE_NAME"
+
     - name: Export Quiz Results from PostgreSQL
       env:
         PGPASSWORD: quiz_password
       run: |
         mkdir -p ./db_backup
-        docker-compose exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
+        docker-compose -f $COMPOSE_FILE_PATH exec -T db pg_dump -U quiz_user -d quiz_db -t public.quiz_results -F c -f /var/lib/postgresql/data/quiz_results.backup
         docker cp quiz_postgres:/var/lib/postgresql/data/quiz_results.backup ./db_backup/quiz_results.backup
 
-    - name: stop Docker Containers
-      run: docker-compose down -v
+    - name: Stop Deployment Service
+      run: sudo systemctl stop dataengineer.service
 
     - name: Build Docker Containers
-      run: docker-compose build --no-cache
+      run: docker-compose -f $COMPOSE_FILE_PATH build --no-cache
 
-    - name: Start Docker Containers
-      run: docker-compose up -d
+    - name: Start Deployment Service
+      run: sudo systemctl start dataengineer.service
 
     - name: Restore Quiz Results to PostgreSQL
       env:
@@ -36,5 +66,4 @@ jobs:
       run: |
         sleep 15  # Даем время на полное поднятие контейнеров
         docker cp ./db_backup/quiz_results.backup quiz_postgres:/var/lib/postgresql/data/quiz_results.backup
-        docker-compose exec -T db pg_restore --data-only -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
-
+        docker-compose -f $COMPOSE_FILE_PATH exec -T db pg_restore --data-only -U quiz_user -d quiz_db /var/lib/postgresql/data/quiz_results.backup
